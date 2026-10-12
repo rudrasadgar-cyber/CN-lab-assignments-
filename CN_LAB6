@@ -271,52 +271,3 @@ int main()
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
- Server Terminal - UDP Server started...
-Waiting for client...
-
-Client: Hello!
-Server: Hello!
-Client: How are you?
-Server: Fine.
-Client: Is today CN lab today?
-Server: Yes.
-Client: Are you attending?
-Server: Yes.
-Server: Why should we chat?
-Client: Because communication is important!
-Server: Bye!
-
-Chat ended by server.
- Client Terminal - Client: Hello!
-Server: Hello!
-Client: How are you?
-Server: Fine.
-Client: Is today CN lab today?
-Server: Yes.
-Client: Are you attending?
-Server: Yes.
-Server: Why should we chat?
-Client: Because communication is important!
-Server: Bye!
-
-Chat ended by server.
