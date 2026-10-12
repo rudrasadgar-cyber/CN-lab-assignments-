@@ -189,16 +189,6 @@ int main()
     close(sock);
 
     return 0;
-}  Server Terminal - TCP Server waiting on port 8080...
-Client connected successfully!
-Client: Hello Server
-Enter reply: Hello Client
-Client: How are you?
-Enter reply: I am fine
-Client: exit  Client Terminal - Connected to TCP server!
-Type 'exit' to end the chat.
-Enter message: Hello Server
-Server: Hello Client
-Enter message: How are you?
+}  
 Server: I am fine
 Enter message: exit
