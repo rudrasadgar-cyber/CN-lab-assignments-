@@ -271,3 +271,97 @@ int main()
 }
 
 
+
+Part - 2
+
+Server - 
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <arpa/inet.h>
+
+int main() {
+    int sockfd;
+    char buffer[1024];
+    struct sockaddr_in server_addr, client_addr;
+    socklen_t len = sizeof(client_addr);
+
+    sockfd = socket(AF_INET, SOCK_DGRAM, 0);
+
+    server_addr.sin_family = AF_INET;
+    server_addr.sin_addr.s_addr = INADDR_ANY;
+    server_addr.sin_port = htons(8080);
+
+    bind(sockfd, (struct sockaddr *)&server_addr,
+         sizeof(server_addr));
+
+    printf("UDP Server started...\n");
+
+    recvfrom(sockfd, buffer, sizeof(buffer) - 1, 0,
+             (struct sockaddr *)&client_addr, &len);
+
+    buffer[sizeof(buffer) - 1] = '\0';
+    printf("Original String: %s\n", buffer);
+
+    int n = strlen(buffer);
+
+    for (int i = 0; i < n / 2; i++) {
+        char temp = buffer[i];
+        buffer[i] = buffer[n - i - 1];
+        buffer[n - i - 1] = temp;
+    }
+
+    printf("Reversed String: %s\n", buffer);
+
+    sendto(sockfd, buffer, strlen(buffer), 0,
+           (struct sockaddr *)&client_addr, len);
+
+    close(sockfd);
+    return 0;
+}
+
+
+Client - 
+#include <stdio.h>
+#include <string.h>
+#include <unistd.h>
+#include <arpa/inet.h>
+
+int main() {
+    int sockfd;
+    char buffer[1024];
+    struct sockaddr_in server_addr;
+    socklen_t len = sizeof(server_addr);
+
+    sockfd = socket(AF_INET, SOCK_DGRAM, 0);
+
+    server_addr.sin_family = AF_INET;
+    server_addr.sin_port = htons(8080);
+    server_addr.sin_addr.s_addr = inet_addr("127.0.0.1");
+
+    printf("Enter a string: ");
+    fgets(buffer, sizeof(buffer), stdin);
+    buffer[strcspn(buffer, "\n")] = '\0';
+
+    sendto(sockfd, buffer, strlen(buffer), 0,
+           (struct sockaddr *)&server_addr, len);
+
+    recvfrom(sockfd, buffer, sizeof(buffer) - 1, 0,
+             NULL, NULL);
+    buffer[sizeof(buffer) - 1] = '\0';
+
+    printf("Reversed String from Server: %s\n", buffer);
+
+    close(sockfd);
+    return 0;
+}
+
+Terminal 1 — Server
+UDP Server started... 
+Original String: HELLO 
+Reversed String: OLLEH
+
+Terminal 2 — Client
+Enter a string: HELLO 
+Reversed String from Server: OLLEH
