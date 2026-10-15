@@ -190,5 +190,134 @@ int main()
 
     return 0;
 }  
-Server: I am fine
-Enter message: exit
+
+
+
+
+
+
+Part - 2
+
+
+Server -
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <arpa/inet.h>
+
+int main() {
+    int server_fd, client_fd;
+    struct sockaddr_in server_addr;
+    int a, b, result;
+    char op;
+    char buffer[100];
+
+    server_fd = socket(AF_INET, SOCK_STREAM, 0);
+
+    server_addr.sin_family = AF_INET;
+    server_addr.sin_addr.s_addr = INADDR_ANY;
+    server_addr.sin_port = htons(8080);
+
+    bind(server_fd, (struct sockaddr *)&server_addr,
+         sizeof(server_addr));
+
+    listen(server_fd, 1);
+    printf("TCP Server waiting for client...\n");
+
+    client_fd = accept(server_fd, NULL, NULL);
+    printf("Client connected.\n");
+
+    recv(client_fd, buffer, sizeof(buffer), 0);
+    sscanf(buffer, "%d %c %d", &a, &op, &b);
+
+    switch (op) {
+        case '+': result = a + b; break;
+        case '-': result = a - b; break;
+        case '*': result = a * b; break;
+        case '/':
+            if (b == 0) {
+                strcpy(buffer, "Error: Division by zero");
+                send(client_fd, buffer, strlen(buffer) + 1, 0);
+                close(client_fd);
+                close(server_fd);
+                return 0;
+            }
+            result = a / b;
+            break;
+        default:
+            strcpy(buffer, "Invalid operator");
+            send(client_fd, buffer, strlen(buffer) + 1, 0);
+            close(client_fd);
+            close(server_fd);
+            return 0;
+    }
+
+    sprintf(buffer, "%d", result);
+
+    printf("Calculation: %d %c %d = %s\n",
+           a, op, b, buffer);
+
+    send(client_fd, buffer, strlen(buffer) + 1, 0);
+
+    close(client_fd);
+    close(server_fd);
+
+    return 0;
+}
+
+Client - 
+#include <stdio.h>
+#include <string.h>
+#include <unistd.h>
+#include <arpa/inet.h>
+
+int main() {
+    int sockfd;
+    struct sockaddr_in server_addr;
+    char buffer[100];
+    int a, b;
+    char op;
+
+    sockfd = socket(AF_INET, SOCK_STREAM, 0);
+
+    server_addr.sin_family = AF_INET;
+    server_addr.sin_port = htons(8080);
+    server_addr.sin_addr.s_addr = inet_addr("127.0.0.1");
+
+    connect(sockfd, (struct sockaddr *)&server_addr,
+            sizeof(server_addr));
+
+    printf("Enter first number: ");
+    scanf("%d", &a);
+
+    printf("Enter operator (+, -, *, /): ");
+    scanf(" %c", &op);
+
+    printf("Enter second number: ");
+    scanf("%d", &b);
+
+    sprintf(buffer, "%d %c %d", a, op, b);
+
+    send(sockfd, buffer, strlen(buffer) + 1, 0);
+
+    recv(sockfd, buffer, sizeof(buffer), 0);
+
+    printf("Result from Server: %s\n", buffer);
+
+    close(sockfd);
+
+    return 0;
+}
+
+Terminal 1 — Server
+TCP Server waiting for client... 
+Client connected. 
+Calculation: 10 + 5 = 15
+
+Terminal 2 — Client
+Enter first number: 10 
+Enter operator (+, -, *, /): + 
+Enter second number: 5 
+Result from Server: 15
